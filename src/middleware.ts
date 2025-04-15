@@ -15,7 +15,20 @@ export async function middleware(req: NextRequest) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
 
-    return NextResponse.next();
+    //console.log(payload);
+
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('id', payload.id as string);
+    requestHeaders.set('email', payload.email as string);
+
+    const res = NextResponse.next({
+      request: {
+        headers : requestHeaders
+      }
+    });
+
+    return res;
+
   } catch (err) {
     return NextResponse.redirect(new URL('/denied', req.url))
   }
