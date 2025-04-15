@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from '@/config/connectDb';
 import { User } from '@/models/user';
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
 export async function POST(req: NextRequest) {
     await connectDB();
@@ -45,11 +46,11 @@ export async function POST(req: NextRequest) {
             });
         }
     }
-    else{
+    else {
         const { email, password } = body;
 
         try {
-            const found = await User.findOne({email});
+            const found = await User.findOne({ email });
 
             if (!found) {
                 return NextResponse.json({
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
 
             const matched = await bcrypt.compare(password, found.password);
 
-            if(!matched){
+            if (!matched) {
                 return NextResponse.json({
                     status: 400,
                     message: "Incorrect Password"
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
 
             const secret = process.env.JWT_SECRET as string;
 
-            const token = jwt.sign({id: found._id}, secret, {expiresIn: '1d'});
+            const token = jwt.sign({ id: found._id, email: found.email }, secret, { expiresIn: '1d' });
 
             const res = NextResponse.json({
                 status: 201,
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
             });
 
             return res;
-            
+
         } catch (err) {
             console.error(err);
             return NextResponse.json({
@@ -92,5 +93,35 @@ export async function POST(req: NextRequest) {
                 message: "Something went wrong"
             });
         }
+    }
+}
+
+export async function GET(req: NextRequest) {
+
+    const cookie = req.headers.get('cookie');
+    //console.log(cookie);
+
+    const token = cookie?.split(';').find(c => c.startsWith('token='))?.split('=')[1];
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jwtVerify(token as string, secret);
+
+    const payloadEmail = payload.email;
+
+    try {
+
+        const found = await User.findOne({email: payloadEmail});
+
+        return NextResponse.json({
+            status: 200,
+            found
+        });
+
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({
+            status: 500,
+            message: "Something went wrong"
+        });
     }
 }
