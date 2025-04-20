@@ -8,20 +8,26 @@ import {
   ModalContent,
   ModalTrigger,
 } from '@/components/ui/animated-modal';
-import { IoSettingsOutline } from "react-icons/io5";
-import InterviewBoxList from "@/components/InterviewBoxList";
 import InterviewBoxPast from "@/components/InterviewBoxPast";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { Dialog } from "@radix-ui/react-dialog";
+import { useRouter } from "next/navigation";
+import { toast } from 'sonner';
+import path from "path";
 
 function page() {
 
   const [loaded, setLoaded] = useState(true);
-  const [data, setData] = useState();
+  const [generating, setGenerating] = useState(false);
+  const [data, setData] = useState<{ id: string, name: string, email: string }>();
+  const [role, setRole] = useState('');
+  const [company, setCompany] = useState('');
+  const [experience, setExperience] = useState('');
+  const [InterviewPreferrence, setInterviewPreferrence] = useState('');
+  const router = useRouter();
 
   const getData = async () => {
     try {
@@ -37,9 +43,9 @@ function page() {
     }
   }
 
-  // useEffect(() => {
-  //   getData();
-  // }, []);
+  useEffect(() => {
+    getData();
+  }, []);
 
   const array = [
     {
@@ -58,6 +64,42 @@ function page() {
       role: 'MERN'
     },
   ];
+
+  const preferrence = [
+    'behavioral',
+    'technical',
+    'cultural',
+    'communication',
+    'hr/general',
+  ];
+
+  const startMockInterview = async () => {
+    if (!role || !InterviewPreferrence || !experience || !company) {
+      toast.error("Please fill all the details");
+      return;
+    }
+
+    let id = toast.loading("Starting mock interview");
+
+    try {
+      setGenerating(true);
+      const res = await axios.post(`/api/gemini`, {
+        role, InterviewPreferrence, company, experience, name: data?.name
+      });
+
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+    finally{
+      setGenerating(false);
+      toast.dismiss(id);
+      setRole('');
+      setExperience('');
+      setInterviewPreferrence('');
+      setCompany('');
+    }
+  }
 
   return (
     <>
@@ -79,34 +121,24 @@ function page() {
               <p className="w-auto text-center px-4 py-2 rounded-md bg-white text-bl cursor-pointer hover:opacity-80 duration-150 ease-in-out active:scale-95">Create a new mock</p>
             </ModalTrigger>
             <ModalBody>
-              <ModalContent>
-                <p>hello</p>
+              <ModalContent className="w-full px-3 md:px-3 lg:px-3 overflow-y-auto gap-3 py-2">
+                <h1 className="w-full py-2 text-xl font-bold px-2 text-center">Help us Know More About Your Interview Type</h1>
+                <input onChange={(e) => setRole(e.target.value)} type="text" className=" w-full bg-gray-200 px-3 py-2 rounded-md lg:rounded-lg outline-none" placeholder="Enter your desired role for interview" />
+                <input onChange={(e) => setCompany(e.target.value)} type="text" className=" w-full bg-gray-200 px-3 py-2 rounded-md lg:rounded-lg outline-none" placeholder="Company (if any)" />
+                <input onChange={(e) => setExperience(e.target.value)} type="text" className=" w-full bg-gray-200 px-3 py-2 rounded-md lg:rounded-lg outline-none" placeholder="Years of experience (0 in case of fresher)" />
+
+                <p className="w-full text-start justify-center items-start mt-2 text-sm">Select your interview preferrence</p>
+                <div className="w-full flex overflow-x-auto justify-start items-start gap-2">
+                  {preferrence.map((pref, index) => {
+                    return <span key={index} className={`text-[12px] w-auto lg:text-sm md:rounded-md lg:rounded-lg px-3 py-1 md:py-2 rounded-full cursor-pointer ${InterviewPreferrence === pref ? "bg-fuchsia-700 text-white" : "bg-gray-200 text-black"} duration-200 ease-in-out active:scale-95`} onClick={() => setInterviewPreferrence(pref)}>{pref}</span>
+                  })}
+                </div>
+                <p className="w-full rounded-md lg:rounded-lg bg-gradient-to-r from-purple-400 to-purple-700 text-white text-center py-2 hover:opacity-80 duration-150 ease-in-out cursor-pointer" onClick={startMockInterview}>{generating ? "Starting . . ." : "Start Mock Interview"}</p>
               </ModalContent>
             </ModalBody>
           </Modal>
 
           <hr className="w-full h-[1px] bg-gray-200 my-3" />
-
-          {/* your list */}
-          <div className="w-full flex justify-between items-center mt-2 px-3">
-            <h1 className="w-auto text-start text-white font-bold text-3xl">Your Lists</h1>
-          </div>
-
-          <div className={`w-full px-5 py-5 mt-2 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 duration-200 transition-all flex justify-start items-center gap-4 ease-in-out h-60`}>
-            <div className={`flex w-full h-full overflow-x-auto gap-4 justify-start items-start`}>
-              {array.map((role, index) => {
-                return <div key={index}>
-                  <Drawer>
-                    <DrawerTrigger>
-                      <InterviewBoxList className={`cursor-pointer`}/>
-                    </DrawerTrigger>
-                    <DrawerContent className={`h-[70vh]`}>
-
-                    </DrawerContent>
-                  </Drawer></div>
-              })}
-            </div>
-          </div>
 
           {/* past list */}
           <div className="w-full flex justify-between items-center mt-2 px-3">
@@ -119,7 +151,7 @@ function page() {
                 return <div key={index}>
                   <Drawer>
                     <DrawerTrigger>
-                      <InterviewBoxPast className={`cursor-pointer`}/>
+                      <InterviewBoxPast className={`cursor-pointer`} />
                     </DrawerTrigger>
                     <DrawerContent className={`h-[70vh]`}>
 
