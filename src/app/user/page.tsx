@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/drawer';
 import { useRouter } from "next/navigation";
 import { toast } from 'sonner';
-import path from "path";
 
 function page() {
 
@@ -87,11 +86,24 @@ function page() {
         role, InterviewPreferrence, company, experience, name: data?.name
       });
 
-      console.log(res.data);
+      const info = {
+        name: data?.name,
+        role, InterviewPreferrence, company, experience, question: res.data.resp
+      }
+
+      if (res.data.success) {
+        const send = JSON.stringify(info);
+        const DATA = encodeURIComponent(send);
+        setGenerating(false);
+        toast.dismiss(id);
+        router.push(`/user/mock-interview?data=${DATA}`);
+      }
+
+      //console.log(res.data);
     } catch (err) {
       console.log(err);
     }
-    finally{
+    finally {
       setGenerating(false);
       toast.dismiss(id);
       setRole('');
@@ -130,7 +142,7 @@ function page() {
                 <p className="w-full text-start justify-center items-start mt-2 text-sm">Select your interview preferrence</p>
                 <div className="w-full flex overflow-x-auto justify-start items-start gap-2">
                   {preferrence.map((pref, index) => {
-                    return <span key={index} className={`text-[12px] w-auto lg:text-sm md:rounded-md lg:rounded-lg px-3 py-1 md:py-2 rounded-full cursor-pointer ${InterviewPreferrence === pref ? "bg-fuchsia-700 text-white" : "bg-gray-200 text-black"} duration-200 ease-in-out active:scale-95`} onClick={() => setInterviewPreferrence(pref)}>{pref}</span>
+                    return <span key={index} className={`text-[12px] capitalize w-auto lg:text-sm md:rounded-md lg:rounded-lg px-3 py-1 md:py-2 rounded-full cursor-pointer ${InterviewPreferrence === pref ? "bg-fuchsia-700 text-white" : "bg-gray-200 text-black"} duration-200 ease-in-out active:scale-95`} onClick={() => setInterviewPreferrence(pref)}>{pref}</span>
                   })}
                 </div>
                 <p className="w-full rounded-md lg:rounded-lg bg-gradient-to-r from-purple-400 to-purple-700 text-white text-center py-2 hover:opacity-80 duration-150 ease-in-out cursor-pointer" onClick={startMockInterview}>{generating ? "Starting . . ." : "Start Mock Interview"}</p>
