@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
         });
 
     } catch (err) {
-        console.error(err);
+        console.log(err);
         return NextResponse.json({
             status: 500,
             message: "Something went wrong"
