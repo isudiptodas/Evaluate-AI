@@ -20,9 +20,14 @@ interface DATA {
 function page() {
 
     const searchParams = useSearchParams();
-    const[name, setName] = useState('');
+    const [name, setName] = useState('');
+    const [type, setType] = useState('');
+    const [role, setRole] = useState('');
+    const [company, setCompany] = useState('');
+    const [experience, setExperience] = useState('');
+    const [feedback, setFeedback] = useState('');
     const [data, setData] = useState<DATA | null>(null);
-    const[question, setQuestion] = useState('');
+    const [question, setQuestion] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -31,9 +36,18 @@ function page() {
         setData(decoded);
 
         setName(decoded.name);
+        setType(decoded.InterviewPreferrence);
+        setRole(decoded.role);
+        setCompany(decoded.company);
+        setExperience(decoded.experience);
+        setFeedback(decoded.feedback);
         setQuestion(decoded.question);
         //console.log(decoded);
     }, []);
+
+    const exit = () => {
+        router.push('/user');
+    }
 
     const saveAndExit = async () => {
         let toastid = toast.loading("Saving your details");
@@ -45,11 +59,11 @@ function page() {
                 experience: data?.experience,
                 company: data?.company,
                 type: data?.InterviewPreferrence,
-                feedback:data?.feedback,
+                feedback: data?.feedback,
                 question: question
             });
 
-            if(res.data.success){
+            if (res.data.success) {
                 console.log(res.data);
                 toast.dismiss(toastid);
                 router.push('/user');
@@ -68,10 +82,10 @@ function page() {
                     <h1 className="w-full text-center text-xl md:text-2xl xl:text-4xl text-white font-semibold mb-4">Mock Interview Details</h1>
 
                     <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Name: {name}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Company: {data?.company}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Experience: {data?.experience}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Role: {data?.role}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Interview Type: {data?.InterviewPreferrence}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Company: {company}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Experience: {experience}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Role: {role}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Interview Type: {type}</p>
                 </div>
 
                 <div className="w-full sm:w-[60%] sm:px-10 md:px-12 lg:px-10 mt-5 h-auto py-4 sm:py-7 md:py-5 px-3 flex flex-col justify-center items-center backdrop-blur-3xl bg-white/10 rounded-md lg:rounded-lg">
@@ -85,6 +99,7 @@ function page() {
                 </div>
 
                 <p onClick={saveAndExit} className="w-auto px-4 lg:px-7 mt-5 py-2 rounded-full text-black bg-white cursor-pointer active:scale-95 duration-150 ease-in-out hover:opacity-80">Save and exit</p>
+                <p onClick={exit} className="w-auto px-4 lg:px-7 mt-5 py-2 rounded-full text-black bg-white cursor-pointer active:scale-95 duration-150 ease-in-out hover:opacity-80">Exit without saving</p>
 
             </div>
         </>
