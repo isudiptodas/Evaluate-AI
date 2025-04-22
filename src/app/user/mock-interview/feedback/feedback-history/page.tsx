@@ -19,6 +19,10 @@ function page() {
     const searchParams = useSearchParams();
     const[name, setName] = useState('');
     const[type, setType] = useState('');
+    const[role, setRole] = useState('');
+    const[company, setCompany] = useState('');
+    const[experience, setExperience] = useState('');
+    const[feedback, setFeedback] = useState('');
     const [data, setData] = useState<DATA | null>(null);
     const router = useRouter();
 
@@ -27,8 +31,14 @@ function page() {
         const decoded = encoded ? JSON.parse(decodeURIComponent(encoded)) : null;
         setData(decoded);
 
+        //console.log(decoded);
+
         setName(decoded.name);
         setType(decoded.type);
+        setRole(decoded.role);
+        setCompany(decoded.company);
+        setExperience(decoded.experience);
+        setFeedback(decoded.feedback);
 
         //console.log(decoded);
     }, []);
@@ -45,11 +55,11 @@ function page() {
                 <div className="w-full sm:w-auto sm:px-10 md:px-12 lg:px-10 h-auto py-4 sm:py-7 md:py-10 px-3 flex flex-col justify-center items-center backdrop-blur-3xl bg-white/10 rounded-md lg:rounded-lg">
                     <h1 className="w-full text-center text-xl md:text-2xl xl:text-4xl text-white font-semibold mb-4">Mock Interview Details</h1>
 
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light">Name: {name}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light">Company: {data?.company}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light">Experience: {data?.experience}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light">Role: {data?.role}</p>
-                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light">Interview Type: {type}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Name: {name}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Company: {company}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Experience: {experience}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Role: {role}</p>
+                    <p className="w-full text-[12px] lg:text-sm text-start text-white font-light capitalize">Interview Type: {type}</p>
                 </div>
 
                 <div className="w-full sm:w-[60%] sm:px-10 md:px-12 lg:px-10 mt-5 h-auto py-4 sm:py-7 md:py-5 px-3 flex flex-col justify-center items-center backdrop-blur-3xl bg-white/10 rounded-md lg:rounded-lg">
@@ -57,7 +67,7 @@ function page() {
 
                     <p className="w-full text-start text-[12px] md:text-sm text-white">
                         <Markdown>
-                            {data?.feedback}
+                            {feedback}
                         </Markdown>
                     </p>
                 </div>
