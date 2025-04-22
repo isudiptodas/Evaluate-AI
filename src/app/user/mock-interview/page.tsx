@@ -156,7 +156,7 @@ function PageContent() {
     }
 
     return (
-        <div className={`${loaded ? "block" : "hidden"} w-full min-h-screen bg-gradient-to-br from-black to-purple-700 flex flex-col gap-4 justify-start items-center`}>
+        <div className={`${loaded ? "block" : "hidden"} overflow-y-auto w-full min-h-screen bg-gradient-to-br from-black to-purple-700 flex flex-col gap-4 justify-start items-center`}>
             <h1 className='font-mono text-white tracking-widest py-5'>EVALUATE AI</h1>
 
             <div className="w-full h-full flex px-3 py-2 flex-col lg:flex-row justify-start items-center gap-4">
