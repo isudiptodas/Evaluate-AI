@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { MdAccountCircle } from "react-icons/md";
 import { MdCallEnd } from "react-icons/md";
 import { useSearchParams } from "next/navigation";
@@ -18,7 +18,7 @@ interface DATA {
     questions: string,
 }
 
-function page() {
+function PageContent() {
 
     const [active, setActive] = useState('');
     const [name, setName] = useState('');
@@ -114,7 +114,6 @@ function page() {
                     message: msg.content,
                 }));
                 setMessages((prev) => [...(prev || []), ...historyMessages])
-                //console.log(historyMessages);
             }
         });
 
@@ -130,76 +129,64 @@ function page() {
         let toastid = toast.loading("Interview Ended. Generating feedback");
 
         const stringify = JSON.stringify(messages);
-        //console.log(stringify);
 
-            try {
-                const res = await axios.post(`/api/gemini/feedback`, {
-                    transcripts: stringify
-                });
+        try {
+            const res = await axios.post(`/api/gemini/feedback`, {
+                transcripts: stringify
+            });
 
-                if (res.data.success) {
-                    toast.dismiss(toastid);
-                    //console.log(res.data);
-                    const feedback = res.data.resp;
-                    const send = {
-                        name: data?.name,
-                        InterviewPreferrence: data?.InterviewPreferrence,
-                        role: data?.role,
-                        company: data?.company,
-                        experience: data?.experience,
-                        feedback: feedback,
-                        question: questions
-                    }
-                    const encodedData = encodeURIComponent(JSON.stringify(send));
-                    router.push(`/user/mock-interview/feedback?data=${encodedData}`);
+            if (res.data.success) {
+                toast.dismiss(toastid);
+                const feedback = res.data.resp;
+                const send = {
+                    name: data?.name,
+                    InterviewPreferrence: data?.InterviewPreferrence,
+                    role: data?.role,
+                    company: data?.company,
+                    experience: data?.experience,
+                    feedback: feedback,
+                    question: questions
                 }
-            } catch (err) {
-                console.log(err);
+                const encodedData = encodeURIComponent(JSON.stringify(send));
+                router.push(`/user/mock-interview/feedback?data=${encodedData}`);
             }
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     return (
-        <>
-            <div className={`${loaded ? "block" : "hidden"} w-full min-h-screen bg-gradient-to-br from-black to-purple-700 flex flex-col gap-4 justify-start items-center`}>
+        <div className={`${loaded ? "block" : "hidden"} w-full min-h-screen bg-gradient-to-br from-black to-purple-700 flex flex-col gap-4 justify-start items-center`}>
+            <h1 className='font-mono text-white tracking-widest py-5'>EVALUATE AI</h1>
 
-                <h1 className='font-mono text-white tracking-widest py-5'>EVALUATE AI</h1>
-
-                <div className="w-full h-full flex px-3 py-2 flex-col lg:flex-row justify-start items-center gap-4">
-
-                    <div className="w-full h-72 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 flex flex-col justify-center items-center gap-2 relative">
-                        <div className="h-16 z-30 w-16 rounded-full overflow-hidden">
-                            <img src="/ai-voice.png" />
-                        </div>
-                        <p className="z-30 text-white font-semibold text-lg absolute bottom-5 -translate-y-1/2 left-1/2 -translate-x-1/2">Selina</p>
-                        <div className={`${active === 'model' ? "block" : "hidden"} h-16 w-16 rounded-full bg-white left-1/2 -translate-x-1/2 -translate-y-1/2 top-1/2 z-10 animate-ping absolute`}></div>
+            <div className="w-full h-full flex px-3 py-2 flex-col lg:flex-row justify-start items-center gap-4">
+                <div className="w-full h-72 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 flex flex-col justify-center items-center gap-2 relative">
+                    <div className="h-16 z-30 w-16 rounded-full overflow-hidden">
+                        <img src="/ai-voice.png" />
                     </div>
-                    <div className="w-full h-72 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 flex flex-col justify-center items-center gap-2 relative">
-                        <div className="h-16 z-30 w-16 bg-white rounded-full flex justify-center items-center overflow-hidden">
-                            <MdAccountCircle className="text-6xl" />
-                        </div>
-                        <p className="z-30 text-white font-semibold text-lg absolute bottom-5 -translate-y-1/2 left-1/2 -translate-x-1/2 capitalize">{name} (You)</p>
-                        <div className={`${active === 'user' ? "block" : "hidden"}  h-16 w-16 rounded-full bg-white left-1/2 -translate-x-1/2 -translate-y-1/2 top-1/2 z-10 animate-ping absolute`}></div>
-                    </div>
-
+                    <p className="z-30 text-white font-semibold text-lg absolute bottom-5 -translate-y-1/2 left-1/2 -translate-x-1/2">Selina</p>
+                    <div className={`${active === 'model' ? "block" : "hidden"} h-16 w-16 rounded-full bg-white left-1/2 -translate-x-1/2 -translate-y-1/2 top-1/2 z-10 animate-ping absolute`}></div>
                 </div>
-
-                <div className={`w-full py-2 flex justify-center items-center`}>
-                    <p className="px-4 py-2 rounded-full bg-red-500 text-white cursor-pointer hover:opacity-80 duration-150 ease-in-out flex justify-center items-center gap-2 text-lg" onClick={endCall}>End call<MdCallEnd /></p>
+                <div className="w-full h-72 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 flex flex-col justify-center items-center gap-2 relative">
+                    <div className="h-16 z-30 w-16 bg-white rounded-full flex justify-center items-center overflow-hidden">
+                        <MdAccountCircle className="text-6xl" />
+                    </div>
+                    <p className="z-30 text-white font-semibold text-lg absolute bottom-5 -translate-y-1/2 left-1/2 -translate-x-1/2 capitalize">{name} (You)</p>
+                    <div className={`${active === 'user' ? "block" : "hidden"}  h-16 w-16 rounded-full bg-white left-1/2 -translate-x-1/2 -translate-y-1/2 top-1/2 z-10 animate-ping absolute`}></div>
                 </div>
             </div>
 
-            {/* <div className={`${loaded ? "hidden" : "block"}  w-full px-4 py-4 h-auto flex flex-col justify-start items-center gap-3`}>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-36"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-32"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-10"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-10"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-32"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-36"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-10"></div>
-                <div className="w-full rounded-md backdrop-blur-3xl bg-white/10 h-10"></div>
-            </div> */}
-        </>
-    )
+            <div className={`w-full py-2 flex justify-center items-center`}>
+                <p className="px-4 py-2 rounded-full bg-red-500 text-white cursor-pointer hover:opacity-80 duration-150 ease-in-out flex justify-center items-center gap-2 text-lg" onClick={endCall}>End call<MdCallEnd /></p>
+            </div>
+        </div>
+    );
 }
 
-export default page
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="text-white text-center mt-10">Loading interview...</div>}>
+      <PageContent />
+    </Suspense>
+  );
+}
