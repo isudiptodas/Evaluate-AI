@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react';  // Import Suspense
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react";
 import Markdown from 'react-markdown'
@@ -17,7 +18,7 @@ interface DATA {
     question: string
 }
 
-function page() {
+function Page() {
 
     const searchParams = useSearchParams();
     const [name, setName] = useState('');
@@ -74,7 +75,7 @@ function page() {
     }
 
     return (
-        <>
+        <Suspense fallback={<div>Loading...</div>}> {/* Wrap your component with Suspense */}
             <div className="w-full min-h-screen pb-10 overflow-y-auto px-5 bg-gradient-to-br from-black to-purple-700 flex flex-col justify-start items-center relative">
                 <h1 className='font-mono text-white tracking-widest py-5'>EVALUATE AI</h1>
 
@@ -102,8 +103,8 @@ function page() {
                 <p onClick={exit} className="w-auto px-4 lg:px-7 mt-5 py-2 rounded-full text-black bg-white cursor-pointer active:scale-95 duration-150 ease-in-out hover:opacity-80">Exit without saving</p>
 
             </div>
-        </>
+        </Suspense>
     )
 }
 
-export default page
+export default Page;
