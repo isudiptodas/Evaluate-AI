@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 
 interface HIST {
   name: string,
-  InterviewPreferrence: string,
+  type: string,
   role: string,
   company: string,
   experience: string,
@@ -39,7 +39,7 @@ function page() {
   const getData = async () => {
     try {
       const res = await axios.get('/api/user');
-      console.log(res.data.found);
+      //console.log(res.data.found);
 
       if (res.data.status === 200) {
         setData(res.data.found);
@@ -164,7 +164,7 @@ function page() {
           <div className={`${history.length > 0 ? "block" : "hidden"} w-full px-5 py-5 mt-2 rounded-md lg:rounded-lg backdrop-blur-3xl bg-white/10 duration-200 transition-all flex justify-start items-center gap-4 ease-in-out h-64`}>
             <div className={`flex w-full h-full overflow-x-auto gap-4 justify-start items-start `}>
               {history.length > 0 && history.map((int, index) => {
-                return <InterviewBoxPast key={index} name={int.name} role={int.role} company={int.company} questions={int?.questions} experience={int.experience} type={int.InterviewPreferrence} feedback={int.feedback} className={`cursor-pointer`} />
+                return <InterviewBoxPast key={index} name={int.name} role={int.role} company={int.company} questions={int?.questions} experience={int.experience} type={int.type} feedback={int.feedback} className={`cursor-pointer`} />
               })}
             </div>
           </div>
